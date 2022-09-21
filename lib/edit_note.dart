@@ -40,22 +40,22 @@ class _EditNoteState extends State<EditNote> {
       appBar: AppBar(
         actions: [
           ElevatedButton(
-            onPressed: () async {
-              final String title1 = title.text;
-              final String content1 = content.text;
-
-              if (content != null) {
-                await ref.add({'title': title1, 'content': content1});
-              }
-
-              Navigator.of(context).pop();
-              // ref.add({
-              //   'title': title.text,
-              //   'content': content.text,
-              // }).whenComplete(
-              //   () => Navigator.pop(context),
-              // );
+            onPressed: () {
+              ref.doc(widget.docToEdit.id).update({
+                'title': title.text,
+                'content': content.text,
+              }).whenComplete(
+                () => Navigator.pop(context),
+              );
             },
+
+            // ref.add({
+            //   'title': title.text,
+            //   'content': content.text,
+            // }).whenComplete(
+            //   () => Navigator.pop(context),
+            // );
+
             child: const Text('Save'),
           ),
         ],

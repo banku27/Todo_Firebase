@@ -60,7 +60,7 @@ class HomePage extends StatelessWidget {
         stream: ref.snapshots().map((event) {
           List<Note> notes = [];
           event.docs.forEach((element) {
-            notes.add(Note.fromMap(element.data()));
+            notes.add(Note.fromMap(element.data(), element.reference.id));
           });
           return notes;
         }),
