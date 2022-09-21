@@ -17,6 +17,7 @@ class EditNote extends StatefulWidget {
 class _EditNoteState extends State<EditNote> {
   TextEditingController title = TextEditingController();
   TextEditingController content = TextEditingController();
+  final ref = FirebaseFirestore.instance.collection('notes');
 
   @override
   void initState() {
@@ -27,12 +28,27 @@ class _EditNoteState extends State<EditNote> {
   }
 
   @override
+  void dispose() {
+    title.dispose();
+    content.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         actions: [
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              final String title1 = title.text;
+              final String content1 = content.text;
+
+              if (content != null) {
+                await ref.add({'title': title1, 'content': content1});
+              }
+
+              Navigator.of(context).pop();
               // ref.add({
               //   'title': title.text,
               //   'content': content.text,
@@ -81,5 +97,12 @@ class _EditNoteState extends State<EditNote> {
         ),
       ),
     );
+  }
+
+  Future<void> update([DocumentSnapshot? documentSnapshot]) async {
+    if (documentSnapshot != null) {
+      title.text = documentSnapshot['title'];
+      content.text = documentSnapshot['content'];
+    }
   }
 }
