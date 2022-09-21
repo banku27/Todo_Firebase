@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_firebase/add_note.dart';
+import 'package:todo_firebase/edit_note.dart';
 import 'package:todo_firebase/firebase_options.dart';
+import 'package:todo_firebase/model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,36 +56,52 @@ class HomePage extends StatelessWidget {
         },
         child: const Icon(Icons.add),
       ),
-      body: StreamBuilder(
-        stream: ref.snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) =>
-            GridView.builder(
-                itemCount: snapshot.hasData ? snapshot.data!.docs.length : 0,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2),
-                itemBuilder: (context, index) {
-                  DocumentSnapshot notes = snapshot.data!.docs[index];
-                  return Container(
-                    margin: const EdgeInsets.all(10),
-                    height: 170,
-                    color: Colors.grey[200],
-                    child: Column(
-                      children: [
-                        Text(
-                          notes['title'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(notes['content']),
-                      ],
+      body: StreamBuilder<List<Note>>(
+        stream: ref.snapshots().map((event) {
+          List<Note> notes = [];
+          event.docs.forEach((element) {
+            notes.add(Note.fromMap(element.data()));
+          });
+          return notes;
+        }),
+        builder: (context, snapshot) => GridView.builder(
+            itemCount: snapshot.hasData ? snapshot.data!.length : 0,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2),
+            itemBuilder: (context, index) {
+              var notes = snapshot.data![index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          EditNote(docToEdit: snapshot.data![index]),
                     ),
                   );
-                }),
+                },
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  height: 170,
+                  color: Colors.grey[200],
+                  child: Column(
+                    children: [
+                      Text(
+                        notes.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(notes.content),
+                    ],
+                  ),
+                ),
+              );
+            }),
       ),
     );
   }
