@@ -58,6 +58,14 @@ class _EditNoteState extends State<EditNote> {
 
             child: const Text('Save'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              ref.doc(widget.docToEdit.id).delete().whenComplete(
+                    () => Navigator.pop(context),
+                  );
+            },
+            child: const Text('Delete'),
+          ),
         ],
       ),
       body: Container(
